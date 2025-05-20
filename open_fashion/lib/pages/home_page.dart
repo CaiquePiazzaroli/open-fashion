@@ -13,13 +13,14 @@ class _HomePage extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       extendBodyBehindAppBar: true,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Banner(screenWidth: screenWidth),
+            Banner(screenWidth: screenWidth, screenHeight: screenHeight),
             const SizedBox(height: 40), // espaçamento entre banner e footer
             const Footer(),
           ],
@@ -33,9 +34,11 @@ class Banner extends StatelessWidget {
   const Banner({
     super.key,
     required this.screenWidth,
+    required this.screenHeight,
   });
 
   final double screenWidth;
+  final dynamic screenHeight;
 
   @override
   Widget build(BuildContext context) {

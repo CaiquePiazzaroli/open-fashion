@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ThemeApp {
+
   static ThemeData getLight() {
     return ThemeData(
       fontFamily: 'TenorSans',
@@ -12,6 +13,7 @@ class ThemeApp {
     return ThemeData(colorScheme: colorSchemeDark);
   }
 
+  //Esquema de cores
   static final colorSchemeLight = ColorScheme(
     brightness: Brightness.light,
     primary: Color.fromARGB(255, 0, 0, 0),

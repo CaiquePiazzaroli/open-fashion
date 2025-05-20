@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_fashion/pages/grid_view_page.dart';
+import 'package:open_fashion/pages/shop_page.dart';
 import 'package:open_fashion/theme_data/theme_settings.dart';
 import 'package:open_fashion/pages/drawer_page.dart';
 import 'package:open_fashion/widgets/header_widget.dart';
@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Open Fashion',
-      debugShowCheckedModeBanner: false,
+      debugShowCheckedModeBanner: true,
       theme: ThemeApp.getLight(),
       home: const Main(),
     );
@@ -26,55 +26,64 @@ class MyApp extends StatelessWidget {
 }
 
 class Main extends StatefulWidget {
+  //Pode ou não ser passado na instância da main
   final int? categoryGrid;
-  const Main({super.key, this.categoryGrid});
 
+  //Construtor da Main
+  const Main({super.key, this.categoryGrid});
+  
   @override
   State<Main> createState() => _MainState();
 }
 
 class _MainState extends State<Main> {
+  //Controla a exibição das páginas pelo bottomNav
   late int _selectedIndex = 0;
+
+  //Irá receber o categoryGrid
   late int? categoryId;
+
+  //Irá receber as páginas que serão renderizadas
+  late List<Widget> mainPages;
 
   //Chamado uma unica vez quando o widget é carregado - Inicializa as variaveis
   @override
   void initState() {
     super.initState();
+
+    //Inicia categoryID com o categoryGrid
     categoryId = widget.categoryGrid;
-    _selectedIndex =
-        categoryId != null ? 1 : 0; //Define o valor inicial de _selectedIndex
+
+    //Setando o valor inicial de selectedIndex
+    _selectedIndex = categoryId != null ? 1 : 0; 
+
+    //Iniciando a lista de páginas
+    mainPages = [
+      HomePage(),
+      ShopPage(category: categoryId),
+      Center(child: Text("Página de perfil")),
+    ];
   }
 
-  //Executa quando o usuario clica em um botao do bottom nav
+  //Executa quando o usuario clica em um botao do bottomNav
   void _onItemTapped(int index) {
+
+    //index = indice do elemento clicado na lista
+    print(index);
+
     setState(() {
-      if(index == 1) {categoryId = 0;}
       _selectedIndex = index;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    List<Widget> mainPages = [
-      const HomePage(),
-      GridViewPage(category: categoryId),
-      const Center(child: Text("Página de perfil")),
-    ];
-
     return Scaffold(
       drawer: DrawerWidget(),
-      appBar: Header(index: _selectedIndex),
-      body: Stack(
-        children: [
-          mainPages[_selectedIndex],
-          Align(
-            alignment: Alignment.bottomCenter,
-          ),
-        ],
-      ),
-      floatingActionButton: const FloatButton(),
-      bottomNavigationBar: BottomNav(
+      appBar: HeaderWidget(),
+      body: mainPages[_selectedIndex],
+      floatingActionButton: FloatButton(),
+      bottomNavigationBar: BottomNavWidget(
         currentIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),

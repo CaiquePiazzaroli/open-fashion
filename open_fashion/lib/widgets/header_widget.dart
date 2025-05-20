@@ -1,22 +1,10 @@
 import 'package:flutter/material.dart';
 
-class Header extends StatelessWidget implements PreferredSizeWidget{
-  final int index;
-  const Header({super.key, required this.index});
-
-  Color setBackground(){
-    if(index == 0){
-      return Color.fromARGB(255, 231, 234, 239);
-    }
-    else{
-      return Colors.white;
-    }
-  }
-
+class HeaderWidget extends StatelessWidget implements PreferredSizeWidget{
+  const HeaderWidget({super.key});
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: setBackground(),
       leading: Builder(
         builder: (BuildContext context) {
           return IconButton(

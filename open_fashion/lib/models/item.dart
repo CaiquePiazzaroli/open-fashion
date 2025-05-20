@@ -4,8 +4,10 @@ class Item {
   final String title;
   final String subTitle;
   final double price;
-  final List<String> colors;
-  final List<String> sizes;
+
+  //Color e size é opcional, sua utilização depende de onde o item está sendo renderizado
+  late String? color;
+  late String? size;
 
   Item({
     this.id, 
@@ -13,8 +15,8 @@ class Item {
     required this.title, 
     required this.subTitle, 
     required this.price, 
-    required this.colors, 
-    required this.sizes});
+    this.color, 
+    this.size});
 
   String getImagePath() => imagePath; 
   String getTitle() => title; 
