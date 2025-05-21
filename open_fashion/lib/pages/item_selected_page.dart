@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:open_fashion/mocks/detail_page_itens.dart';
+import 'package:open_fashion/widgets/color_button_widget.dart';
+import 'package:open_fashion/widgets/size_button_widget.dart';
 
 class ItemSelectedPage extends StatelessWidget {
   static const TextStyle titleStyle = TextStyle(
-    fontSize: 18,
+    fontSize: 32,
     fontWeight: FontWeight.bold,
   );
   static const TextStyle priceStyle = TextStyle(
-    fontSize: 16,
+    fontSize: 28,
     color: Colors.orange,
   );
 
@@ -59,6 +61,7 @@ class ItemSelectedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     //Variável para identificar o tamanho da tela
     double screenSize = MediaQuery.sizeOf(context).width;
+    double screenheight = MediaQuery.sizeOf(context).height;
 
     //Recebe o item selecionado pelo id
     Map itemSelected = _getItemSelected();
@@ -68,65 +71,41 @@ class ItemSelectedPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(title: Text("Store")),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          SizedBox(
-            width: screenSize,
-            child: Column(
-              children: [
-                Row(
-                  children: [
-                    Image.asset(
-                      width: screenSize,
-                      alignment: Alignment.center,
-                      itemSelected['imagepath'],
-                    ),
-                  ],
-                ),
-                Padding(padding: EdgeInsets.all(6)),
-                title(itemSelected),
-                Padding(padding: EdgeInsets.all(2)),
-                subtitle(itemSelected),
-                Padding(padding: EdgeInsets.all(2)),
-                price(itemSelected),
-                Padding(padding: EdgeInsets.all(2)),
-                ColorAndSize(itemSelected, attributeVariants),
-                Padding(padding: EdgeInsets.all(2)),
-                Text(itemSelected['color']),
-              ],
-            ),
-          ),
-          Container(
-            height: 60,
-            width: double.infinity,
-            color: Colors.black,
-            child: TextButton(
-              onPressed: () => {print("aa")},
-              child: Text("+ ADD CART", style: TextStyle(color: Colors.white)),
-            ),
-          ),
-        ],
+      bottomNavigationBar: Container(
+        height: 60,
+        width: double.infinity,
+        color: Colors.black,
+        child: TextButton(
+          onPressed: () => {print("aa")},
+          child: Text("+ ADD CART", style: TextStyle(color: Colors.white)),
+        ),
       ),
-    );
-  }
-
-  //Titulo
-  Container title(Map<dynamic, dynamic> itemSelected) => Container(
-    padding: EdgeInsets.only(left: 29),
-    child: Row(children: [Text(itemSelected['title'], style: titleStyle)]),
-  );
-
-
-  //Subtitulo
-  Container subtitle(Map<dynamic, dynamic> itemSelected) {
-    return Container(
-      padding: EdgeInsets.only(left: 29),
-      child: Row(
+      body: ListView(
         children: [
-          Text(itemSelected['subtitle'], style: TextStyle(fontSize: 16)),
-        ],
-      ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: SizedBox(
+              width: screenSize,
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Image.asset(
+                        width: screenSize - 32,
+                        alignment: Alignment.center,
+                        itemSelected['imagepath'],
+                      ),
+                    ],
+                  ),
+                  Row(children: [Text(itemSelected['title'], style: titleStyle)]),
+                  Row(children: [Text(itemSelected['subtitle'],style: TextStyle(fontSize: 18))]),
+                  Row(children: [Text("R\$${itemSelected['price']}", style: priceStyle)]),
+                  colorAndSize(itemSelected, attributeVariants),
+                ],
+              ),
+            ),
+        ),
+      ]),
     );
   }
 
@@ -140,61 +119,37 @@ class ItemSelectedPage extends StatelessWidget {
     );
   }
 
-  Container ColorAndSize(Map itemSelected, Map attributeVariants) {
-
-    //Container de tamanho
-    Container size(String size) {
-      return Container(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.black),
+  Wrap colorAndSize(Map itemSelected, Map attributeVariants) {
+    return Wrap(
+      children: [
+        Expanded(
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text("Cores:"),
+              ),
+              //Errado: attributeVariants['colors'].map((attribute) => {Text(attribute)})
+              ...attributeVariants['colors'].map((colorString) => ColorButtonWidget(colorName: colorString)),
+            ],
+          ),
         ),
-        width: 20,
-        height: 20,
-        child: Center(child: Text(size)),
-      );
-    }
-
-    return Container(
-      padding: EdgeInsets.only(left: 29),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Row(
-              children: [
-                Text("Cores: "),
-                //Errado: attributeVariants['colors'].map((attribute) => {Text(attribute)})
-                ...attributeVariants['colors'].map((item) => Text(item)),
-
-                // Container(decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.black,), width: 14, height: 14),
-                // Padding(padding: EdgeInsets.all(2)),
-                // Container(decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.orange,), width: 14, height: 14),
-                // Padding(padding: EdgeInsets.all(2)),
-                // Container(decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.blueGrey,), width: 14, height: 14),
-              ],
-            ),
+        Padding(padding: EdgeInsets.all(4)),
+        Expanded(
+          child: Row(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 6.0),
+                child: Text("Tamanho"),
+              ),
+              //Itera sobre a lista de tamanhos disponíveis e cria um SizeButtonWidget para cada tamanho
+              ...attributeVariants['sizes'].map(
+                (sizeString) => SizeButtonWidget(size: sizeString),
+              ),
+            ],
           ),
-          Padding(padding: EdgeInsets.all(4)),
-          Expanded(
-            child: Row(
-              children: [
-                Text("Tamanho"),
-
-                //Errado: attributeVariants['sizes'].map((attribute) => {Text(attribute)})
-                ...attributeVariants['sizes'].map((item) => Text(item)),
-
-                // Padding(padding: EdgeInsets.all(2)),
-                // size("S"),
-                // Padding(padding: EdgeInsets.all(2)),
-                // size("L"),
-                //  Padding(padding: EdgeInsets.all(2)),
-                // size("M"),
-              ],
-            ),
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
