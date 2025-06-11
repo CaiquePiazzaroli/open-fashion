@@ -61,7 +61,7 @@ class ItemSelectedPage extends StatelessWidget {
   Widget build(BuildContext context) {
     //Variável para identificar o tamanho da tela
     double screenSize = MediaQuery.sizeOf(context).width;
-    double screenheight = MediaQuery.sizeOf(context).height;
+
 
     //Recebe o item selecionado pelo id
     Map itemSelected = _getItemSelected();
@@ -76,7 +76,7 @@ class ItemSelectedPage extends StatelessWidget {
         width: double.infinity,
         color: Colors.black,
         child: TextButton(
-          onPressed: () => {print("aa")},
+          onPressed: () => {},
           child: Text("+ ADD CART", style: TextStyle(color: Colors.white)),
         ),
       ),

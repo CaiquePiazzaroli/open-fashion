@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:open_fashion/main.dart';
+import 'package:open_fashion/pages/home_template.dart';
 import 'package:open_fashion/widgets/footer_widget.dart';
 
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class BannerPage extends StatefulWidget {
+  const BannerPage({super.key});
 
   @override
-  State<StatefulWidget> createState() => _HomePage();
+  State<StatefulWidget> createState() => _BannerPage();
 }
 
-class _HomePage extends State<HomePage> {
+class _BannerPage extends State<BannerPage> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -59,7 +59,7 @@ class Banner extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (context) => const Main(categoryGrid: 0),
+                    builder: (context) => const HomeTemplate(categoryGrid: 0),
                   ),
                 );
               },

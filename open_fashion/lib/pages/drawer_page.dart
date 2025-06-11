@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_fashion/main.dart';
+import 'package:open_fashion/pages/home_template.dart';
 
 
 class DrawerWidget extends StatefulWidget {
@@ -103,7 +103,7 @@ class _DrawerWidgetState extends State<DrawerWidget> {
                             MaterialPageRoute(
                               builder:
                                   (context) =>
-                                      Main(categoryGrid: item['id']),
+                                      HomeTemplate(categoryGrid: item['id']),
                             ),
                           );
                         },
