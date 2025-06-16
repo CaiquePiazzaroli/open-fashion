@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:open_fashion/pages/banner_page.dart';
 import 'package:open_fashion/pages/drawer_page.dart';
 import 'package:open_fashion/pages/shop_page.dart';
+import 'package:open_fashion/pages/user_page.dart';
 import 'package:open_fashion/widgets/bottom_navigator_widget.dart';
 import 'package:open_fashion/widgets/float_action_button_widget.dart';
 import 'package:open_fashion/widgets/header_widget.dart';
@@ -42,7 +43,7 @@ class _HomeTemplate extends State<HomeTemplate> {
     mainPages = [
       BannerPage(),
       ShopPage(category: categoryId),
-      Center(child: Text("Página de perfil")),
+      UserPage(),
     ];
   }
 

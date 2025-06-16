@@ -1,36 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:open_fashion/auth/register_page.dart';
 
-class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+class RegisterPage extends StatefulWidget {
+  const RegisterPage({super.key});
 
   @override
   State<StatefulWidget> createState() {
-    return _LoginPageState();
+    return _RegisterPageState();
   }
 }
 
-class _LoginPageState extends State<LoginPage> {
+class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Text("Cadastro de usuário")),
       body: Container(
         padding: EdgeInsets.all(40),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             Container(
-              margin: EdgeInsets.only(bottom: 40),
+              margin: EdgeInsets.only(bottom: 20),
               child: Text(
-                "Open Fashion Login",
-                style: TextStyle(
-                  fontSize: 26
-                ), 
+                "Registrar uma nova conta", 
+                    style: TextStyle(
+                    fontSize: 26
+                  ),
               ),
             ),
-            LoginForm(), 
-            RegisterButton()
+            RegistrationForm()
           ],
         ),
       ),
@@ -39,16 +38,16 @@ class _LoginPageState extends State<LoginPage> {
 }
 
 // Define a custom Form widget.
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+class RegistrationForm extends StatefulWidget {
+  const RegistrationForm({super.key});
 
   @override
-  LoginFormState createState() {
-    return LoginFormState();
+  RegistrationFormState createState() {
+    return RegistrationFormState();
   }
 }
 
-class LoginFormState extends State<LoginForm> {
+class RegistrationFormState extends State<RegistrationForm> {
   //Serve para validar o formulário
   final _formKey = GlobalKey<FormState>();
 
@@ -69,7 +68,7 @@ class LoginFormState extends State<LoginForm> {
             obscureText: false,
             decoration: const InputDecoration(
               // icon: Icon(Icons.email),
-              hintText: 'Insira seu email',
+              hintText: 'Cadastrar um novo email',
               labelText: 'Email *',
             ),
             validator: (String? value) {
@@ -85,7 +84,7 @@ class LoginFormState extends State<LoginForm> {
             obscureText: true,
             decoration: const InputDecoration(
               // icon: Icon(Icons.password),
-              hintText: 'Insira sua senha',
+              hintText: 'Cadastrar uma nova senha',
               labelText: 'Senha *',
             ),
             validator: (String? value) {
@@ -99,30 +98,26 @@ class LoginFormState extends State<LoginForm> {
           Container(
             margin: EdgeInsets.only(top: 20),
             child: ElevatedButton(
-              child: const Text('Logar-se', style: TextStyle(fontWeight: FontWeight.w500),),
+              child: const Text('Criar conta'),
               onPressed: () async {
                 // É uma validação do proprio flutter, definido em cada input text
                 //por exemplo: campo de email ->> deve conter @ como: caique@email.com
                 if (_formKey.currentState!.validate()) {
-                  //Aqui é onde efetivamente os dados preenchidos no form são passados
-                  //para o firebase verificar as credenciais
-                  //Se sim, um novo evento é disparado indicando que o usuário está logado
-                  //Um exemplo de função que capta status: authStateChanges()
+                  
+                  //Cria um usuário
                   try {
-                    // ignore: unused_local_variable
-                    final credential = await FirebaseAuth.instance
-                        .signInWithEmailAndPassword(
+                    final credential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
                           email: emailAddressController.text,
                           password: passwordController.text,
                         );
-            
-                    print(credential);
                   } on FirebaseAuthException catch (e) {
+            
+                    //Trata os erros de input
                     String message = '';
-                    if (e.code == 'user-not-found' || e.code == 'wrong-password' || e.code =="invalid-credential") {
-                      message = 'Email ou senha incorretos. Por favor, verifique seus dados.';
-                    } else if (e.code == 'invalid-email') {
-                      message = 'O formato do email é inválido.';
+                    if (e.code == 'weak-password') {
+                      message = 'O a senha fornecida é muito fraca. Esolha outra senha.';
+                    } else if (e.code == 'email-already-in-use') {
+                      message = 'Essa conta de email ja possui um cadastro!';
                     } else {
                       message = 'Ocorreu um erro. Tente novamente.';
                     }
@@ -135,39 +130,11 @@ class LoginFormState extends State<LoginForm> {
                     );
                   }
                 }
-              },
+              },  
             ),
           ),
         ],
       ),
     );
   }
-}
-
-
-class RegisterButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(top: 12),
-      child: TextButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => RegisterPage()
-              )
-            );
-          },
-        child: Text("Não possui uma conta? Cadastre-se", 
-        style: TextStyle(
-          color: Colors.orange,
-          fontSize: 14,
-          decoration: TextDecoration.underline,
-          decorationColor: Colors.orange,
-        ),)
-      ),
-    );
-  }
-
 }
