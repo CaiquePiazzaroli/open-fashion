@@ -1,10 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:open_fashion/auth/login_page.dart';
+import 'package:open_fashion/pages/auth/login_page.dart';
 import 'package:open_fashion/pages/home_template.dart';
 import 'package:open_fashion/theme_data/theme_settings.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:provider/provider.dart';
+import 'package:open_fashion/providers/cart_provider.dart';
 
 
 void main() async {
@@ -13,13 +15,18 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-
-  runApp(MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => CartProvider()),
+      ],
+      child: const MyApp(),
+    ),
+  );;
 }
 
 class MyApp extends StatelessWidget {
-  final bool areUserLogged = false;
-  const MyApp({super.key, bool? areUserLogged});
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

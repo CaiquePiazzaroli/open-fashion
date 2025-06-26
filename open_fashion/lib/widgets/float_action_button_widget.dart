@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:open_fashion/pages/cart_page.dart';
+import 'package:open_fashion/pages/store/cart_page.dart';
 
 class FloatButton extends StatelessWidget {
   const FloatButton({super.key});

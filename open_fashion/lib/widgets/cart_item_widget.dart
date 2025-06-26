@@ -1,90 +1,80 @@
+// lib/widgets/cart_item_widget.dart
 import 'package:flutter/material.dart';
-import 'package:open_fashion/models/item.dart';
+import 'package:provider/provider.dart';
+import 'package:open_fashion/providers/cart_provider.dart';
 
+class CartItem extends StatelessWidget {
+  final String id;
+  final String imagePath;
+  final String title;
+  final String subtitle;
+  final double price;
+  final String size;
+  final String color;
+  final int amount;
 
-// ignore: must_be_immutable
-class CartItem extends StatefulWidget {
-  final Item item;
-  int amount;
-  
-  CartItem({super.key, required this.item, required this.amount});
+  const CartItem({
+    super.key,
+    required this.id,
+    required this.imagePath,
+    required this.title,
+    required this.subtitle,
+    required this.price,
+    required this.size,
+    required this.color,
+    required this.amount,
+  });
 
-  double getTotalPrice() {
-    return item.price * amount;
-  }
-
-  @override
-  State<CartItem> createState() => _CartItemState();
-}
-
-class _CartItemState extends State<CartItem> {
-  TextStyle titleStyle = TextStyle(fontSize: 18, fontWeight: FontWeight.bold);
-  TextStyle priceStyle = TextStyle(fontSize: 16, color: Colors.orange);
   @override
   Widget build(BuildContext context) {
+    final cart = Provider.of<CartProvider>(context, listen: false);
+
     return Container(
-      height: 200,
-      margin: EdgeInsets.only(bottom: 20),
+      height: 160,
+      margin: const EdgeInsets.only(bottom: 20),
       child: Row(
         children: [
-          Container(
-            alignment: Alignment.topCenter,
-            margin: EdgeInsets.only(right: 12),
-            child: Image.asset(widget.item.imagePath),
-          ),
-          SizedBox(
-            width: 200,
+          Image.network(imagePath, height: 120, width: 100, fit: BoxFit.cover),
+          const SizedBox(width: 12),
+          Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Container(
-                  margin: EdgeInsets.only(bottom: 6),
-                  child: Text(
-                    widget.item.title.toUpperCase(),
-                    style: titleStyle,
-                  ),
+                Text(title.toUpperCase(), style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 4),
+                Text(subtitle, style: const TextStyle(fontSize: 12)),
+                const SizedBox(height: 6),
+                Text("Cor: $color | Tamanho: $size", style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.remove),
+                      onPressed: () {
+                        if (amount > 1) {
+                          cart.updateItemAmount(id, size, color, amount - 1);
+                        } else {
+                          cart.removeItem({
+                            'id': id,
+                            'size': size,
+                            'color': color,
+                          });
+                        }
+                      },
+                    ),
+                    Text(amount.toString()),
+                    IconButton(
+                      icon: const Icon(Icons.add),
+                      onPressed: () {
+                        cart.updateItemAmount(id, size, color, amount + 1);
+                      },
+                    ),
+                  ],
                 ),
-                Container(
-                  margin: EdgeInsets.only(bottom: 2),
-                  child: Text(widget.item.subTitle),
-                ),
-                switchAmout(),
-                Text("${widget.item.price}R\$", style: priceStyle),
+                Text("R\$ ${(price * amount).toStringAsFixed(2)}", style: const TextStyle(color: Colors.orange)),
               ],
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  SizedBox switchAmout() {
-    return SizedBox(
-      child: Row(
-        children: [
-          IconButton(
-            onPressed:
-                () => {
-                  if (widget.amount > 0)
-                    {
-                      setState(() {
-                        widget.amount--;
-                      }),
-                    },
-                },
-            icon: Image.asset('assets/Minus.png'),
-          ),
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 6),
-            child: Text(widget.amount.toString()),
-          ),
-          IconButton(
-            onPressed:
-                () => setState(() {
-                  widget.amount++;
-                }),
-            icon: Image.asset('assets/Plus.png'),
-          ),
+          )
         ],
       ),
     );

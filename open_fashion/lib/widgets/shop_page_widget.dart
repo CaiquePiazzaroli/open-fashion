@@ -23,7 +23,6 @@ class _StoreItemWidgetState extends State<ShopPageWidget> {
 
   @override
   Widget build(BuildContext context) {
-    
     //Permite a utilização do ontap
     return GestureDetector(
       onTap: widget.onPressed,
@@ -31,10 +30,23 @@ class _StoreItemWidgetState extends State<ShopPageWidget> {
         padding: EdgeInsets.all(14),
         child: Column(
           children: [
-            Image.asset(widget.item.getImagePath()),
-            Row(children: [Text(widget.item.getTitle(), style: titleStyle)]),
-            Wrap(children: [Text(widget.item.getSubtitle())]),
-            Row(children: [Text('R\$${widget.item.getPrice()}', style: priceStyle)]),
+            Image.network(widget.item.getImagePath(), height: 240),
+            Padding(
+              padding: EdgeInsetsGeometry.symmetric(vertical: 20),
+              child: Column(
+                children: [
+                  Row(
+                    children: [Text(widget.item.getTitle(), style: titleStyle)],
+                  ),
+                  Wrap(children: [Text(widget.item.getSubtitle())]),
+                  Row(
+                    children: [
+                      Text('R\$${widget.item.getPrice()}', style: priceStyle),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),

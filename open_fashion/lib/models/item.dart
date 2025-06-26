@@ -1,5 +1,5 @@
 class Item {
-  final int? id;
+  final String? id;
   final String imagePath;
   final String title;
   final String subTitle;

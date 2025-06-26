@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:open_fashion/pages/banner_page.dart';
-import 'package:open_fashion/pages/drawer_page.dart';
-import 'package:open_fashion/pages/shop_page.dart';
-import 'package:open_fashion/pages/user_page.dart';
+import 'package:open_fashion/pages/admin/admin_page.dart';
+import 'package:open_fashion/pages/store/banner_page.dart';
+import 'package:open_fashion/pages/navigation/drawer_page.dart';
+import 'package:open_fashion/pages/store/shop_page.dart';
+import 'package:open_fashion/pages/profile/user_page.dart';
 import 'package:open_fashion/widgets/bottom_navigator_widget.dart';
 import 'package:open_fashion/widgets/float_action_button_widget.dart';
 import 'package:open_fashion/widgets/header_widget.dart';
@@ -25,8 +28,12 @@ class _HomeTemplate extends State<HomeTemplate> {
   //Irá receber o categoryGrid
   late int? categoryId;
 
+  bool isAdmin = false;
+
   //Irá receber as páginas que serão renderizadas
   late List<Widget> mainPages;
+
+  String? uid = FirebaseAuth.instance.currentUser?.uid;
 
   //Chamado uma unica vez quando o widget é carregado - Inicializa as variaveis
   @override
@@ -42,9 +49,29 @@ class _HomeTemplate extends State<HomeTemplate> {
     //Iniciando a lista de páginas
     mainPages = [
       BannerPage(),
-      ShopPage(category: categoryId),
+      ShopPage(),
       UserPage(),
     ];
+
+     findUserData(); // Buscar tipo de usuário ao iniciar
+  }
+
+  Future<void> findUserData() async {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid != null) {
+      final doc = await FirebaseFirestore.instance.collection('users').doc(uid).get();
+      if (doc.exists) {
+        final data = doc.data();
+        if (data?['role'] == 'admin') {
+          setState(() {
+            isAdmin = true;
+            mainPages.add(AdminPage());
+          });
+        }
+      }
+    } else {
+      print("Usuário não está logado.");
+    }
   }
 
   //Executa quando o usuario clica em um botao do bottomNav
@@ -66,6 +93,7 @@ class _HomeTemplate extends State<HomeTemplate> {
       body: mainPages[_selectedIndex],
       floatingActionButton: FloatButton(),
       bottomNavigationBar: BottomNavWidget(
+        isAdmin: isAdmin,
         currentIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
       ),
