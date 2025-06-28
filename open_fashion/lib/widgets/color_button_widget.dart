@@ -1,39 +1,37 @@
 import 'package:flutter/material.dart';
 
 class ColorButtonWidget extends StatelessWidget {
-  String colorName = '';
+  final String colorName;
+  final bool isSelected;
 
-  ColorButtonWidget({super.key, required this.colorName});
+  const ColorButtonWidget({
+    super.key,
+    required this.colorName,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-
-    Map colors = {
-      'black': Colors.black,
-      'white': Colors.white,
-      'orange': Colors.orange,
-    };
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: SizedBox(
-        width: 30,
-        height: 30,
-        child: TextButton(
-          onPressed: () {
-            print(colorName);
-          },
-          style: ButtonStyle(
-            backgroundColor: WidgetStateProperty.all(colors[colorName]),
-            shape: WidgetStateProperty.all(
-              CircleBorder(
-                side: BorderSide(color: Colors.black, width: 1)
-              )
-            ),
-          ),
-          child: Text('')),
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: _getColor(colorName),
+        shape: BoxShape.circle,
+        border: isSelected ? Border.all(color: Colors.black, width: 2) : null,
       ),
     );
   }
 
+  Color _getColor(String name) {
+    switch (name.toLowerCase()) {
+      case 'black': return Colors.black;
+      case 'white': return Colors.white;
+      case 'red': return Colors.red;
+      case 'blue': return Colors.blue;
+      case 'green': return Colors.green;
+      case 'yellow': return Colors.yellow;
+      default: return Colors.grey;
+    }
+  }
 }

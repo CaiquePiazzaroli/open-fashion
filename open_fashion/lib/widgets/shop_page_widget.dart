@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:open_fashion/models/item.dart';
 
-class ShopPageWidget extends StatefulWidget {
-  //Atributos
+class ShopPageWidget extends StatelessWidget {
   final Item item;
   final VoidCallback onPressed;
 
-  //Construtor
   const ShopPageWidget({
     super.key,
     required this.onPressed,
@@ -14,38 +12,45 @@ class ShopPageWidget extends StatefulWidget {
   });
 
   @override
-  State<ShopPageWidget> createState() => _StoreItemWidgetState();
-}
-
-class _StoreItemWidgetState extends State<ShopPageWidget> {
-  TextStyle titleStyle = TextStyle(fontSize: 16, fontWeight: FontWeight.bold);
-  TextStyle priceStyle = TextStyle(fontSize: 16, color: Colors.orange);
-
-  @override
   Widget build(BuildContext context) {
-    //Permite a utilização do ontap
     return GestureDetector(
-      onTap: widget.onPressed,
+      onTap: onPressed,
       child: Container(
-        padding: EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        padding: const EdgeInsets.all(12),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Image.network(widget.item.getImagePath(), height: 240),
-            Padding(
-              padding: EdgeInsetsGeometry.symmetric(vertical: 20),
-              child: Column(
-                children: [
-                  Row(
-                    children: [Text(widget.item.getTitle(), style: titleStyle)],
-                  ),
-                  Wrap(children: [Text(widget.item.getSubtitle())]),
-                  Row(
-                    children: [
-                      Text('R\$${widget.item.getPrice()}', style: priceStyle),
-                    ],
-                  ),
-                ],
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Image.network(
+                item.getImagePath(),
+                height: 250, // imagem maior
+                width: double.infinity,
+                fit: BoxFit.cover,
               ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              item.getTitle(),
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              item.getSubtitle(),
+              style: const TextStyle(fontSize: 13, color: Colors.black54),
+              maxLines: 4, // mais linhas
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'R\$${item.getPrice().toStringAsFixed(2)}',
+              style: const TextStyle(fontSize: 16, color: Colors.orange),
             ),
           ],
         ),

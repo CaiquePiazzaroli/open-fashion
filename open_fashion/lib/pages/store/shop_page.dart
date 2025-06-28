@@ -4,76 +4,116 @@ import 'package:open_fashion/pages/store/item_selected_page.dart';
 import 'package:open_fashion/services/firestore_itens.dart';
 import 'package:open_fashion/widgets/shop_page_widget.dart';
 
-class ShopPage extends StatelessWidget {
+class ShopPage extends StatefulWidget {
   final int? category;
-  ShopPage({this.category, super.key});
+  const ShopPage({this.category, super.key});
 
-  Future<List<Map<String, dynamic>>> loadItens() async {
+  @override
+  State<ShopPage> createState() => _ShopPageState();
+}
+
+class _ShopPageState extends State<ShopPage> {
+  List<Map<String, dynamic>> allItems = [];
+  List<Map<String, dynamic>> filteredItems = [];
+  bool isLoading = true;
+  String searchQuery = '';
+
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadItens();
+  }
+
+  Future<void> loadItens() async {
     FirestoreItens db = FirestoreItens();
-    return await db.getItens();
+    final items = await db.getItens();
+    setState(() {
+      allItems = items;
+      filteredItems = items;
+      isLoading = false;
+    });
+  }
+
+  void _filterItems(String query) {
+    setState(() {
+      searchQuery = query.toLowerCase();
+      filteredItems =
+          allItems.where((item) {
+            final name = item['name']?.toLowerCase() ?? '';
+            return name.contains(searchQuery);
+          }).toList();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      child: FutureBuilder<List<Map<String, dynamic>>>(
-        future: loadItens(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator(color: Colors.orange));
-          }
-
-          if (snapshot.hasError) {
-            return Center(
-              child: Text(
-                'Erro: ${snapshot.error}',
-                style: const TextStyle(color: Colors.red),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Column(
+        children: [
+          TextField(
+            controller: _searchController,
+            onChanged: _filterItems,
+            decoration: InputDecoration(
+              hintText: 'Pesquisar produto...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-            );
-          }
-
-          if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-              child: Text(
-                'Nenhum item encontrado.',
-                style: TextStyle(fontSize: 16),
-              ),
-            );
-          }
-
-          final itemJson = snapshot.data!;
-          final shopListItens = itemJson.map((item) {
-            return ShopPageWidget(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => ItemSelectedPage(idItem: item['id']),
-                  ),
-                );
-              },
-              item: Item(
-                id: item['id'].toString(),
-                imagePath: item['imagePath'],
-                title: item['name'],
-                subTitle: item['description'],
-                price: item['value'],
-              ),
-            );
-          }).toList();
-
-          return GridView.builder(
-            itemCount: shopListItens.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 0.4, // ajustado para evitar overflow
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16),
             ),
-            itemBuilder: (context, index) => shopListItens[index],
-          );
-        },
+          ),
+          const SizedBox(height: 16),
+          Expanded(
+            child:
+                isLoading
+                    ? const Center(
+                      child: CircularProgressIndicator(color: Colors.orange),
+                    )
+                    : filteredItems.isEmpty
+                    ? const Center(
+                      child: Text(
+                        'Nenhum item encontrado.',
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    )
+                    : GridView.builder(
+                      padding: const EdgeInsets.only(bottom: 16),
+                      itemCount: filteredItems.length,
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 2,
+                            mainAxisSpacing: 20,
+                            crossAxisSpacing: 16,
+                            childAspectRatio:
+                                0.44,
+                          ),
+                      itemBuilder: (context, index) {
+                        final item = filteredItems[index];
+                        return ShopPageWidget(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder:
+                                    (_) => ItemSelectedPage(idItem: item['id']),
+                              ),
+                            );
+                          },
+                          item: Item(
+                            id: item['id'].toString(),
+                            imagePath: item['imagePath'],
+                            title: item['name'],
+                            subTitle: item['description'],
+                            price: item['value'],
+                          ),
+                        );
+                      },
+                    ),
+          ),
+        ],
       ),
     );
   }

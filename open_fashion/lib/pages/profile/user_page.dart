@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:open_fashion/pages/auth/login_page.dart';
+import 'package:open_fashion/pages/profile/user_order_page.dart';
 
 class UserPage extends StatefulWidget {
   const UserPage({super.key});
@@ -11,12 +12,13 @@ class UserPage extends StatefulWidget {
 }
 
 class _UserPageState extends State<UserPage> {
-  String name = '';
   String role = '';
   String email = '';
   String uid = '';
 
+  final TextEditingController _nameController = TextEditingController();
   bool isLoading = true;
+  bool isSaving = false;
 
   @override
   void initState() {
@@ -28,7 +30,6 @@ class _UserPageState extends State<UserPage> {
     User? user = FirebaseAuth.instance.currentUser;
 
     if (user == null) {
-      // Usuário não logado, navega para LoginPage
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -39,22 +40,22 @@ class _UserPageState extends State<UserPage> {
     }
 
     try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      final doc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
 
       if (doc.exists && mounted) {
         final data = doc.data();
         setState(() {
-          name = data?['name'] ?? 'Sem nome';
+          _nameController.text = data?['name'] ?? 'Sem nome';
           role = data?['role'] ?? 'comum';
           email = user.email ?? '';
           uid = user.uid;
           isLoading = false;
         });
       } else if (mounted) {
-        // Caso o documento não exista, configura isLoading false
         setState(() {
           isLoading = false;
         });
@@ -71,69 +72,153 @@ class _UserPageState extends State<UserPage> {
     }
   }
 
+  Future<void> updateUserName() async {
+    if (_nameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("O nome não pode estar vazio.")),
+      );
+      return;
+    }
+
+    setState(() => isSaving = true);
+
+    try {
+      await FirebaseFirestore.instance.collection('users').doc(uid).update({
+        'name': _nameController.text.trim(),
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Nome atualizado com sucesso.")),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Erro ao atualizar o nome.")),
+      );
+    } finally {
+      setState(() => isSaving = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Meu Perfil')),
-      body: isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 24),
-                  const CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.black,
-                    child: Icon(Icons.person, color: Colors.white, size: 40),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(name, style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-                  Text(
-                    role == 'admin' ? 'Administrador' : 'Usuário comum',
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: role == 'admin' ? Colors.orange : Colors.grey,
+      body:
+          isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    const SizedBox(height: 24),
+                    const CircleAvatar(
+                      radius: 40,
+                      backgroundColor: Colors.black,
+                      child: Icon(Icons.person, color: Colors.white, size: 40),
                     ),
-                  ),
-                  const SizedBox(height: 32),
-                  Card(
-                    elevation: 3,
-                    child: ListTile(
-                      title: const Text("Email"),
-                      subtitle: Text(email),
-                      leading: const Icon(Icons.email),
+                    const SizedBox(height: 16),
+                    TextField(
+                      controller: _nameController,
+                      decoration: const InputDecoration(
+                        labelText: 'Nome',
+                        border: OutlineInputBorder(),
+                        prefixIcon: Icon(Icons.person),
+                      ),
                     ),
-                  ),
-                  Card(
-                    elevation: 3,
-                    child: ListTile(
-                      title: const Text("UID"),
-                      subtitle: Text(uid),
-                      leading: const Icon(Icons.lock_outline),
+                    const SizedBox(height: 8),
+                    Text(
+                      role == 'admin' ? 'Administrador' : 'Usuário comum',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: role == 'admin' ? Colors.orange : Colors.grey,
+                      ),
                     ),
-                  ),
-                  const Spacer(),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await FirebaseAuth.instance.signOut();
-                      if (mounted) {
-                        Navigator.pushReplacement(
+                    const SizedBox(height: 24),
+                    Card(
+                      elevation: 3,
+                      child: ListTile(
+                        title: const Text("Email"),
+                        subtitle: Text(email),
+                        leading: const Icon(Icons.email),
+                      ),
+                    ),
+                    Card(
+                      elevation: 3,
+                      child: ListTile(
+                        title: const Text("UID"),
+                        subtitle: Text(uid),
+                        leading: const Icon(Icons.lock_outline),
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: isSaving ? null : updateUserName,
+                      icon: const Icon(Icons.save),
+                      label:
+                          isSaving
+                              ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                              : const Text("Salvar alterações"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const LoginPage()),
+                          MaterialPageRoute(
+                            builder: (_) => const UserOrdersPage(),
+                          ),
                         );
-                      }
-                    },
-                    icon: const Icon(Icons.logout),
-                    label: const Text("Sair do app"),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      },
+                      icon: const Icon(Icons.receipt_long),
+                      label: const Text("Meus Pedidos"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 12),
+                    ElevatedButton.icon(
+                      onPressed: () async {
+                        await FirebaseAuth.instance.signOut();
+                        if (mounted) {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LoginPage(),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.logout),
+                      label: const Text("Sair do app"),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 12,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
     );
   }
 }

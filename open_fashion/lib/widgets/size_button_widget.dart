@@ -1,36 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
-class SizeButtonWidget extends StatelessWidget{
+class SizeButtonWidget extends StatelessWidget {
+  final String size;
+  final bool isSelected;
 
-  String size = '';
-
-  SizeButtonWidget({super.key, required this.size});
+  const SizeButtonWidget({
+    super.key,
+    required this.size,
+    this.isSelected = false,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Padding( 
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: SizedBox(
-            width: 30,
-            height: 30,
-            child: TextButton(
-              style: ButtonStyle(
-                shape: MaterialStateProperty.all<CircleBorder>(
-                  CircleBorder(
-                    side: BorderSide(color: Colors.black, width: 1),
-                  ),
-                ),
-                padding: MaterialStateProperty.all<EdgeInsets>(EdgeInsets.zero),
-              ),
-              onPressed: () {
-                // ação ao clicar
-              },
-              child: Text(
-                this.size,
-                style: TextStyle(fontSize: 10, color: Colors.black),
-              ),
-          )
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: isSelected ? Colors.black : Colors.grey.shade200,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isSelected ? Colors.black : Colors.grey.shade400,
+          width: 1.5,
         ),
+      ),
+      child: Text(
+        size,
+        style: TextStyle(
+          color: isSelected ? Colors.white : Colors.black,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
     );
-  }}
+  }
+}
