@@ -19,7 +19,7 @@ class FirestoreItens {
     return itens;
   }
 
-  // 🔍 Busca um item específico pelo ID
+  //Busca um item específico pelo ID
   Future<Map<String, dynamic>?> getItemById(String id) async {
     try {
       final doc = await db.collection("itens").doc(id).get();

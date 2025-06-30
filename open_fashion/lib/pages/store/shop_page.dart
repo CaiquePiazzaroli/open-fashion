@@ -88,7 +88,7 @@ class _ShopPageState extends State<ShopPage> {
                             mainAxisSpacing: 20,
                             crossAxisSpacing: 16,
                             childAspectRatio:
-                                0.44,
+                                0.48,
                           ),
                       itemBuilder: (context, index) {
                         final item = filteredItems[index];

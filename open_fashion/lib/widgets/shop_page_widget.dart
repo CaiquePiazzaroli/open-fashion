@@ -28,7 +28,7 @@ class ShopPageWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(8),
               child: Image.network(
                 item.getImagePath(),
-                height: 250, // imagem maior
+                height: 200, 
                 width: double.infinity,
                 fit: BoxFit.cover,
               ),
@@ -44,7 +44,7 @@ class ShopPageWidget extends StatelessWidget {
             Text(
               item.getSubtitle(),
               style: const TextStyle(fontSize: 13, color: Colors.black54),
-              maxLines: 4, // mais linhas
+              maxLines: 4,
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
